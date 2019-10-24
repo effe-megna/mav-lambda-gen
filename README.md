@@ -1,5 +1,5 @@
 # mav-lambda-gen [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
-> generate aws-lambda à la Mav
+> :seeding: generate aws-lambda à la Mav
 
 ## Installation
 
