@@ -1,0 +1,22 @@
+{
+  "name": "<%= newLambdaName %>",
+  "version": "1.0.0",
+  "description": "<%= newDescription %>",
+  "main": "dist/index.js",
+  "author": "<%= newAuthor %>",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "tsc && jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.11.2",
+    "@types/aws-lambda": "^8.10.33",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.1.0",
+    "typescript": "~3.6.2"
+  }
+}

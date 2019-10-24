@@ -1,0 +1,1 @@
+export type LambdaResult = { say: "Yay!" }

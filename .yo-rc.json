@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Francesco Megna",
+      "authorEmail": "francesco.megna97@gmail.com",
+      "authorUrl": ""
+    }
+  }
+}
