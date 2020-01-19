@@ -2,7 +2,6 @@
 !jest.config.js
 *.d.ts
 node_modules
-dist
 
 # lambda sources
 !lib/modules/*/src/*/*.js
