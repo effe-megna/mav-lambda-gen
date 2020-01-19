@@ -1,0 +1,200 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Transform": "AWS::Serverless-2016-10-31",
+    "Parameters" : {
+        "ApiId" : {
+            "Type" : "String",
+            "Default" : "2pptxyxvd1",
+            "Description" : "The id of the Api Gateway REST API resource"
+        },
+        "ApiRootResourceId" : {
+          "Type" : "String",
+          "Default" : "e40yee1kyk",
+          "Description" : "The id of the Api Gateway root resource"
+        },
+        "ApiValidatorBodyParametersId" : {
+            "Type" : "String",
+            "Default" : "f8d0m5",
+            "Description" : "Validate body, query string parameters, and headers"
+        },
+        "ApiValidatorBodyId" : {
+            "Type" : "String",
+            "Default" : "maam58",
+            "Description" : "Validate body"
+        },
+        "ApiValidatorParametersId" : {
+            "Type" : "String",
+            "Default" : "splio6",
+            "Description" : "Validate query string parameters and headers"
+        },
+        "VpcPrivateSubnet1" : {
+            "Type" : "String",
+            "Default" : "subnet-033e8dee929373181",
+            "Description" : "Private VPC subnet 1"
+        },
+        "VpcPrivateSubnet2" : {
+            "Type" : "String",
+            "Default" : "subnet-08dad7aa98eb1abb3",
+            "Description" : "Private VPC subnet 2"
+        },
+        "VpcPublicSubnet1" : {
+            "Type" : "String",
+            "Default" : "subnet-0512959c823c66413",
+            "Description" : "Public VPC subnet 1"
+        },
+        "VpcPublicSubnet2" : {
+            "Type" : "String",
+            "Default" : "subnet-0bf37e855d1449ee5",
+            "Description" : "Public VPC subnet 2"
+        },
+        "VpcPrivateSecurityGroup" : {
+            "Type" : "String",
+            "Default" : "sg-0b7c266f2899ee404",
+            "Description" : "Private VPC security group"
+        },
+        "VpcPublicSecurityGroup" : {
+            "Type" : "String",
+            "Default" : "sg-03941e454255b62f2",
+            "Description" : "Public VPC security group"
+        }
+    },
+    "Resources": {
+      "apiGatewayResource": {
+        "Type" : "AWS::ApiGateway::Resource",
+        "Properties" : {
+            "ParentId" : {"Ref": "ApiRootResourceId"},
+            "PathPart" : "<%= newApiEndpoint %>",
+            "RestApiId" : {"Ref": "ApiId"}
+        }
+      },
+      "optionsMethod": {
+        "Type" : "AWS::ApiGateway::Method",
+        "Properties" : {
+            "ApiKeyRequired" : false,
+            "HttpMethod" : "OPTIONS",
+            "AuthorizationType" : "NONE",
+            "Integration": {
+                "Type": "MOCK",
+                "PassthroughBehavior": "WHEN_NO_MATCH",
+                "RequestTemplates": {
+                    "application/json": "{\"statusCode\": 200}"
+                },
+                "IntegrationResponses": [{
+                    "ResponseParameters" : {
+                        "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,x-amz-cognito-access-token'",
+                        "method.response.header.Access-Control-Allow-Methods" : "'<=% newApiMethod %>,OPTIONS'",
+                        "method.response.header.Access-Control-Allow-Origin" : "'*'"
+                    },
+                    "StatusCode" : "200"
+                }]
+            },
+            "MethodResponses": [{
+                "ResponseParameters" : {
+                    "method.response.header.Access-Control-Allow-Headers" : true,
+                    "method.response.header.Access-Control-Allow-Methods" : true,
+                    "method.response.header.Access-Control-Allow-Origin" : true
+                },
+                "StatusCode" : "200"
+            }],
+            "OperationName" : "optionsMethod",
+            "ResourceId" : {"Ref": "apiGatewayResource"},
+            "RestApiId" : {"Ref": "ApiId"}
+        }
+      },
+      "resourceMethod": {
+        "Type" : "AWS::ApiGateway::Method",
+        "Properties" : {
+            "ApiKeyRequired" : true,
+            "AuthorizationScopes" : [],
+            "AuthorizationType" : "COGNITO_USER_POOLS",
+            "AuthorizerId" : "isgbmr",
+            "HttpMethod" : "<%= newApiMethod %>",
+            "Integration": {
+                "Type": "AWS_PROXY",
+                "IntegrationHttpMethod": "POST",
+                "Uri": { "Fn::Sub":["arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaFunction.Arn}:${Alias}/invocations",{"Alias": "${stageVariables.lambdaAlias}"}]}
+            },
+            "MethodResponses": [{
+                "ResponseParameters" : {
+                    "method.response.header.Access-Control-Allow-Origin" : true
+                },
+                "StatusCode" : "200"
+            },{
+                "ResponseParameters" : {
+                    "method.response.header.Access-Control-Allow-Origin" : true
+                },
+                "StatusCode" : "500"
+            }],
+            "OperationName" : "resourceMethod",
+            "RequestParameters": {
+                "method.request.header.Accept-Language": true
+            },
+            "RequestValidatorId": {"Ref": "ApiValidatorParametersId"},
+            "ResourceId" : {"Ref": "apiGatewayResource"},
+            "RestApiId" : {"Ref": "ApiId"}
+        }
+      },
+      "lambdaFunction": {
+        "Type": "AWS::Serverless::Function",
+        "Properties": {
+            "FunctionName": "<%= newLambdaName %>",
+            "Handler": "index.handler",
+            "Runtime": "nodejs12.x",
+            "CodeUri": "./dist",
+            "Role": {"Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/becharge_uservices"},
+            "Description": "<%= newDescription %>",
+            "Timeout": 3,
+            "VpcConfig": {
+                "SecurityGroupIds" : [ {"Ref": "VpcPrivateSecurityGroup"} ],
+                "SubnetIds" : [ {"Ref": "VpcPrivateSubnet1"}, {"Ref": "VpcPrivateSubnet2"} ]
+            },
+            "ReservedConcurrentExecutions": 20,
+            "Environment": {
+                "Variables": {
+                    "CONFIGURATION_VERSION": "1",
+                    "TRANSLATIONS_VERSION": "1"
+                }
+            },
+            "Tags": {
+                "Project": "bepower"
+            }
+        }
+      },
+      "lambdaFunctionAliasStaging": {
+        "Type" : "AWS::Lambda::Alias",
+        "Properties" : {
+          "FunctionName" : { "Ref" : "lambdaFunction" },
+          "FunctionVersion" : "$LATEST",
+          "Name" : "staging"
+        }
+      },
+      "lambdaFunctionAliasStagingInvokePermission": {
+        "Type": "AWS::Lambda::Permission",
+        "DependsOn": ["lambdaFunction","lambdaFunctionAliasStaging"],
+        "Properties": {
+            "FunctionName": {"Fn::Join": [":", [{"Fn::GetAtt": ["lambdaFunction","Arn"]},"staging"]]},
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {"Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/<%= newApiMethod %>/<%= newApiEndpoint %>"}
+        }
+     },
+     "lambdaFunctionAliasProduction": {
+       "Type" : "AWS::Lambda::Alias",
+       "Properties" : {
+         "FunctionName" : { "Ref" : "lambdaFunction" },
+         "FunctionVersion" : "$LATEST",
+         "Name" : "production"
+       }
+     },
+     "lambdaFunctionAliasProductionInvokePermission": {
+       "Type": "AWS::Lambda::Permission",
+       "DependsOn": ["lambdaFunction","lambdaFunctionAliasProduction"],
+       "Properties": {
+           "FunctionName": {"Fn::Join": [":", [{"Fn::GetAtt": ["lambdaFunction","Arn"]},"production"]]},
+           "Action": "lambda:InvokeFunction",
+           "Principal": "apigateway.amazonaws.com",
+           "SourceArn": {"Fn::Sub": "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*/<%= newApiMethod %>/<%= newApiEndpoint %>"}
+       }
+    }
+  }
+}
