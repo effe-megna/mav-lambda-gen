@@ -7,13 +7,8 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc",
-    "postbuild": "rsync -qL *.json dist; npm install --only=production --prefix dist",
     "watch": "tsc -w",
-    "test": "tsc && jest",
-    "predebug": "tsc; rsync -qrk --exclude='.git' node_modules dist",
-    "debug": "sam local invoke -t template-development.json -d 9229",
-    "preinvoke": "tsc; rsync -qrk --exclude='.git' node_modules dist",
-    "invoke": "sam local invoke -t template-development.json"
+    "test": "tsc && jest"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
