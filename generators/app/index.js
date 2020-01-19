@@ -23,7 +23,8 @@ module.exports = class extends Generator {
       {
         type: 'input',
         name: 'newApiMethod',
-        message : 'Enter a name for the new API Gateway method (i.e.: GET): '
+        message : 'Enter a name for the new API Gateway method (i.e.: GET): ',
+        default: 'GET'
       },
       {
         type: 'input',
@@ -103,7 +104,7 @@ module.exports = class extends Generator {
   }
 
   install() {
-    this.installDependencies();
+    this.npmInstall();
   }
 };
 
