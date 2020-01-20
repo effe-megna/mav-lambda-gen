@@ -41,7 +41,8 @@
     "testEnvironment": "node"
   },
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": "effe-megna/mav-lambda-gen",
   "license": "MIT"
